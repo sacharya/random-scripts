@@ -83,11 +83,11 @@ gem build knife-alamo.gemspec
 gem install knife-alamo-*.gem
 
 cat >> /root/.chef/knife.rb <<EOF
-knife[:alamo][:openstack_user] = $OPENSTACK_USER
-knife[:alamo][:openstack_pass] = $OPENSTACK_PASSWORD
-knife[:alamo][:openstack_tenant] = $OPENSTACK_TENANT
-knife[:alamo][:openstack_region] = $OPENSTACK_REGION
-knife[:alamo][:controller_ip] = $OPENSTACK_AUTH_URL
+knife[:alamo][:openstack_user] = "$OPENSTACK_USER"
+knife[:alamo][:openstack_pass] = "$OPENSTACK_PASSWORD"
+knife[:alamo][:openstack_tenant] = "$OPENSTACK_TENANT"
+knife[:alamo][:openstack_region] = "$OPENSTACK_REGION"
+knife[:alamo][:controller_ip] = "$OPENSTACK_AUTH_URL"
 
 knife[:alamo][:instance_login] = "root"
 knife[:alamo][:validation_pem]  = "/root/.chef/validation.pem"
