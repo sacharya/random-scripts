@@ -54,7 +54,6 @@ EOF
 
 # Grab the cookbooks and upload them to chef-server
 apt-get -y install git-core
-git clone https://github.com/rackspace/knife-alamo.git
 git clone https://github.com/rackspace/hdp-cookbooks.git
 
 cat >> /root/.chef/knife.rb <<EOF
@@ -64,7 +63,7 @@ EOF
 knife cookbook upload -a
 
 # Grab knife-alamo and install it
-git clone https://github.com/rackspace/knife-alamo.git
+git clone https://github.com/sacharya/knife-alamo.git
 apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl
 curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
 tar zxf rubygems-1.8.10.tgz
