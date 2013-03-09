@@ -87,3 +87,5 @@ knife[:rackspace_api_key] = "$RACKSPACE_API_KEY"
 knife[:rackspace_version] = "$RACKSPACE_VERSION"
 knife[:rackspace_endpoint] = "$RACKSPACE_ENDPOINT"
 EOF
+
+echo "Setup complete!!! You may now proceed..."
