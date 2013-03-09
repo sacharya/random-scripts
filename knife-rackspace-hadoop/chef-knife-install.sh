@@ -2,19 +2,21 @@
 
 set -x
 
-# Make sure the Openstack Credentials are set.
-: ${OPENSTACK_USER:?"Need to set OPENSTACK_USER non-empty"}
-: ${OPENSTACK_PASSWORD:?"Need to set OPENSTACK_PASSWORD non-empty"}
-: ${OPENSTACK_TENANT:?"Need to set OPENSTACK_TENANT non-empty"}
-: ${OPENSTACK_REGION:?"Need to set OPENSTACK_REGION non-empty"}
-: ${OPENSTACK_AUTH_URL:?"Need to set OPENSTACK_AUTH_URL non-empty"}
+# Make sure the Rackspace Credentials are set.
+: ${RACKSPACE_API_USERNAME:?"Need to set RACKSPACE_API_USERNAME non-empty"}
+: ${RACKSPACE_API_KEY:?"Need to set RACKSPACE_API_KEY non-empty"}
+: ${RACKSPACE_VERSION:?"Need to set RACKSPACE_VERSION non-empty"}
+: ${RACKSPACE_ENDPOINT:?"Need to set RACKSPACE_ENDPOINT non-empty"}
 
 
 apt-get update
 
 apt-get install -y --force-yes debconf-utils pwgen
 
-CHEF_URL=${CHEF_URL:-http://$(hostname -f):4000}
+IP=`ifconfig eth0 | grep 'inet addr:' | awk '{ print $2 }' | awk -F: '{print $2}'`
+
+#CHEF_URL=${CHEF_URL:-http://$(hostname -f):4000}
+CHEF_URL=${CHEF_URL:-http://$IP:4000}
 AMQP_PASSWORD=${AMQP_PASSWORD:-$(pwgen -1)}
 WEBUI_PASSWORD=${WEBUI_PASSWORD:-$(pwgen -1)}
 
@@ -63,7 +65,7 @@ EOF
 knife cookbook upload -a
 
 # Grab knife-alamo and install it
-git clone https://github.com/sacharya/knife-alamo.git
+git clone https://github.com/opscode/knife-rackspace.git
 apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl
 curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
 tar zxf rubygems-1.8.10.tgz
@@ -73,16 +75,15 @@ gem install chef --no-ri --no-rdoc
 
 cd ..
 cd knife-alamo
+apt-get install libxslt-dev libxml2-dev
+gem install nokogiri
+
 gem build knife-alamo.gemspec
 gem install knife-alamo-*.gem
 
 cat >> /root/.chef/knife.rb <<EOF
-knife[:alamo][:openstack_user] = "$OPENSTACK_USER"
-knife[:alamo][:openstack_pass] = "$OPENSTACK_PASSWORD"
-knife[:alamo][:openstack_tenant] = "$OPENSTACK_TENANT"
-knife[:alamo][:openstack_region] = "$OPENSTACK_REGION"
-knife[:alamo][:controller_ip] = "$OPENSTACK_AUTH_URL"
-
-knife[:alamo][:instance_login] = "root"
-knife[:alamo][:validation_pem]  = "/root/.chef/validation.pem"
+knife[:rackspace_api_username] = "$RACKSPACE_API_USERNAME"
+knife[:rackspace_api_key] = "$RACKSPACE_API_KEY"
+knife[:rackspace_version] = "$RACKSPACE_VERSION"
+knife[:rackspace_endpoint] = "$RACKSPACE_ENDPOINT"
 EOF
