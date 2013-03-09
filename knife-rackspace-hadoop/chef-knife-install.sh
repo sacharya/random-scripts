@@ -78,8 +78,8 @@ cd knife-rackspace
 apt-get install -y libxslt-dev libxml2-dev
 gem install nokogiri
 
-gem build knife-alamo.gemspec
-gem install knife-alamo-*.gem
+gem build knife-rackspace.gemspec
+gem install knife-rackspace-*.gem
 
 cat >> /root/.chef/knife.rb <<EOF
 knife[:rackspace_api_username] = "$RACKSPACE_API_USERNAME"
