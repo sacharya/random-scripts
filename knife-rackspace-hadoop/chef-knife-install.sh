@@ -74,7 +74,7 @@ ruby setup.rb --no-format-executable
 gem install chef --no-ri --no-rdoc
 
 cd ..
-cd knife-alamo
+cd knife-rackspace
 apt-get install -y libxslt-dev libxml2-dev
 gem install nokogiri
 
