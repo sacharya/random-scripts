@@ -2,6 +2,11 @@
 
 set -x
 
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
 # Make sure the Rackspace Credentials are set.
 : ${RACKSPACE_API_USERNAME:?"Need to set RACKSPACE_API_USERNAME non-empty"}
 : ${RACKSPACE_API_KEY:?"Need to set RACKSPACE_API_KEY non-empty"}
