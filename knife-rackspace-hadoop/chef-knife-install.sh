@@ -88,4 +88,11 @@ knife[:rackspace_version] = "$RACKSPACE_VERSION"
 knife[:rackspace_endpoint] = "$RACKSPACE_ENDPOINT"
 EOF
 
+knife role from file /root/hdp-cookbooks/roles/hadoop-datanode.json
+knife role from file /root/hdp-cookbooks/roles/hadoop-jobtracker.json
+knife role from file /root/hdp-cookbooks/roles/hadoop-master.json
+knife role from file /root/hdp-cookbooks/roles/hadoop-namenode.json
+knife role from file /root/hdp-cookbooks/roles/hadoop-worker.json
+knife role from file /root/hdp-cookbooks/roles/hadoop-tasktracker.json
+
 echo "Setup complete!!! You may now proceed..."
