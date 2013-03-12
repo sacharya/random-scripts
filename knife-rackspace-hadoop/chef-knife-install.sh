@@ -13,6 +13,8 @@ fi
 : ${RACKSPACE_VERSION:?"Need to set RACKSPACE_VERSION non-empty"}
 : ${RACKSPACE_ENDPOINT:?"Need to set RACKSPACE_ENDPOINT non-empty"}
 
+SUDO_USER=root
+HOMEDIR=$(getent passwd ${SUDO_USER} | cut -d: -f6)
 
 apt-get update
 
@@ -42,8 +44,6 @@ apt-get install -y --force-yes opscode-keyring
 apt-get upgrade -y --force-yes
 apt-get install -y --force-yes chef chef-server
 
-SUDO_USER=root
-HOMEDIR=$(getent passwd ${SUDO_USER} | cut -d: -f6)
 mkdir -p ${HOMEDIR}/.chef
 cp /etc/chef/validation.pem /etc/chef/webui.pem ${HOMEDIR}/.chef
 chown -R ${SUDO_USER}: ${HOMEDIR}/.chef
@@ -63,8 +63,8 @@ EOF
 apt-get -y install git-core
 git clone https://github.com/sacharya/hdp-cookbooks.git
 
-cat >> /root/.chef/knife.rb <<EOF
-cookbook_path ["/root/hdp-cookbooks/cookbooks"]
+cat >> ${HOMEDIR}/.chef/knife.rb <<EOF
+cookbook_path ["${HOMEDIR}/hdp-cookbooks/cookbooks"]
 EOF
 
 knife cookbook upload -a
@@ -86,20 +86,20 @@ gem install nokogiri
 gem build knife-rackspace.gemspec
 gem install knife-rackspace-*.gem
 
-cat >> /root/.chef/knife.rb <<EOF
+cat >> ${HOMEDIR}/.chef/knife.rb <<EOF
 knife[:rackspace_api_username] = "$RACKSPACE_API_USERNAME"
 knife[:rackspace_api_key] = "$RACKSPACE_API_KEY"
 knife[:rackspace_version] = "$RACKSPACE_VERSION"
 knife[:rackspace_endpoint] = "$RACKSPACE_ENDPOINT"
 EOF
 
-knife role from file /root/hdp-cookbooks/roles/hadoop-datanode.json
-knife role from file /root/hdp-cookbooks/roles/hadoop-jobtracker.json
-knife role from file /root/hdp-cookbooks/roles/hadoop-master.json
-knife role from file /root/hdp-cookbooks/roles/hadoop-namenode.json
-knife role from file /root/hdp-cookbooks/roles/hadoop-worker.json
-knife role from file /root/hdp-cookbooks/roles/hadoop-tasktracker.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-datanode.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-jobtracker.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-master.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-namenode.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-worker.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-tasktracker.json
 
-knife environment from file /root/hdp-cookbooks/environments/example.json
+knife environment from file ${HOMEDIR}/hdp-cookbooks/environments/example.json
 
 echo "Setup complete!!! You may now proceed..."
