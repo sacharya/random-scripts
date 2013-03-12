@@ -100,4 +100,6 @@ knife role from file /root/hdp-cookbooks/roles/hadoop-namenode.json
 knife role from file /root/hdp-cookbooks/roles/hadoop-worker.json
 knife role from file /root/hdp-cookbooks/roles/hadoop-tasktracker.json
 
+knife environment from file /root/hdp-cookbooks/environments/example.json
+
 echo "Setup complete!!! You may now proceed..."
