@@ -61,7 +61,7 @@ EOF
 
 # Grab the cookbooks and upload them to chef-server
 apt-get -y install git-core
-git clone https://github.com/rackspace/hdp-cookbooks.git
+git clone https://github.com/sacharya/hdp-cookbooks.git
 
 cat >> /root/.chef/knife.rb <<EOF
 cookbook_path ["/root/hdp-cookbooks/cookbooks"]
