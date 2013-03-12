@@ -20,7 +20,7 @@ apt-get update
 
 apt-get install -y --force-yes debconf-utils pwgen
 
-IP=`ifconfig eth0 | grep 'inet addr:' | awk '{ print $2 }' | awk -F: '{print $2}'`
+IP=`ifconfig eth0 | grep inet | head -n1 | cut -d":" -f2 | cut -d" " -f1`
 
 #CHEF_URL=${CHEF_URL:-http://$(hostname -f):4000}
 CHEF_URL=${CHEF_URL:-http://$IP:4000}
