@@ -3,9 +3,9 @@
 set -x
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
-   exit 1
-fi
+           echo "This script must be run as root"
+                     exit 1
+                           fi
 
 # Make sure the Rackspace Credentials are set.
 : ${RACKSPACE_API_USERNAME:?"Need to set RACKSPACE_API_USERNAME non-empty"}
@@ -68,21 +68,29 @@ cookbook_path ["${HOMEDIR}/hdp-cookbooks/cookbooks"]
 EOF
 
 knife cookbook upload -a
+for role in ${HOMEDIR}/hdp-cookbooks/roles/*.json; do knife role from file  $role; done
+knife environment from file ${HOMEDIR}/hdp-cookbooks/environments/example.json
 
 # Grab knife-alamo and install it
 git clone https://github.com/opscode/knife-rackspace.git
-apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl
-curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
-tar zxf rubygems-1.8.10.tgz
-cd rubygems-1.8.10 
-ruby setup.rb --no-format-executable
+
+ruby -v
+apt-cache search --names-only '^ruby1.*'
+apt-get install -y ruby1.9.1-full
+# update-alternatives --config ruby
+ln -sf /usr/bin/ruby1.9.1 /usr/bin/ruby
+ruby -v
+
+gem env
+# update-alternatives --config gem
+ln -sf /usr/bin/gem1.9.1 /usr/bin/gem
+gem env
+
+apt-get install -y ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl libxslt-dev libxml2-dev rubygems
 gem install chef --no-ri --no-rdoc
+#gem install nokogiri
 
-cd ..
-cd knife-rackspace
-apt-get install -y libxslt-dev libxml2-dev
-gem install nokogiri
-
+cd ${HOMEDIR}/knife-rackspace
 gem build knife-rackspace.gemspec
 gem install knife-rackspace-*.gem
 
@@ -93,13 +101,5 @@ knife[:rackspace_version] = "$RACKSPACE_VERSION"
 knife[:rackspace_endpoint] = "$RACKSPACE_ENDPOINT"
 EOF
 
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-datanode.json
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-jobtracker.json
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-master.json
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-namenode.json
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-worker.json
-knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-tasktracker.json
-
-knife environment from file ${HOMEDIR}/hdp-cookbooks/environments/example.json
-
 echo "Setup complete!!! You may now proceed..."
+

@@ -2,6 +2,11 @@
 
 set -x
 
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
 # Make sure the Openstack Credentials are set.
 : ${OPENSTACK_USER:?"Need to set OPENSTACK_USER non-empty"}
 : ${OPENSTACK_PASSWORD:?"Need to set OPENSTACK_PASSWORD non-empty"}
@@ -9,12 +14,17 @@ set -x
 : ${OPENSTACK_REGION:?"Need to set OPENSTACK_REGION non-empty"}
 : ${OPENSTACK_AUTH_URL:?"Need to set OPENSTACK_AUTH_URL non-empty"}
 
+SUDO_USER=root
+HOMEDIR=$(getent passwd ${SUDO_USER} | cut -d: -f6)
 
 apt-get update
 
 apt-get install -y --force-yes debconf-utils pwgen
 
-CHEF_URL=${CHEF_URL:-http://$(hostname -f):4000}
+IP=`ifconfig eth0 | grep inet | head -n1 | cut -d":" -f2 | cut -d" " -f1`
+
+#CHEF_URL=${CHEF_URL:-http://$(hostname -f):4000}
+CHEF_URL=${CHEF_URL:-http://$IP:4000}
 AMQP_PASSWORD=${AMQP_PASSWORD:-$(pwgen -1)}
 WEBUI_PASSWORD=${WEBUI_PASSWORD:-$(pwgen -1)}
 
@@ -35,8 +45,6 @@ apt-get install -y --force-yes opscode-keyring
 apt-get upgrade -y --force-yes
 apt-get install -y --force-yes chef chef-server
 
-SUDO_USER=root
-HOMEDIR=$(getent passwd ${SUDO_USER} | cut -d: -f6)
 mkdir -p ${HOMEDIR}/.chef
 cp /etc/chef/validation.pem /etc/chef/webui.pem ${HOMEDIR}/.chef
 chown -R ${SUDO_USER}: ${HOMEDIR}/.chef
@@ -54,10 +62,10 @@ EOF
 
 # Grab the cookbooks and upload them to chef-server
 apt-get -y install git-core
-git clone https://github.com/rackspace/hdp-cookbooks.git
+git clone https://github.com/sacharya/hdp-cookbooks.git
 
 cat >> /root/.chef/knife.rb <<EOF
-cookbook_path ["/root/hdp-cookbooks/cookbooks"]
+cookbook_path ["${HOMEDIR}/hdp-cookbooks/cookbooks"]
 EOF
 
 knife cookbook upload -a
@@ -84,5 +92,16 @@ knife[:alamo][:openstack_region] = "$OPENSTACK_REGION"
 knife[:alamo][:controller_ip] = "$OPENSTACK_AUTH_URL"
 
 knife[:alamo][:instance_login] = "root"
-knife[:alamo][:validation_pem]  = "/root/.chef/validation.pem"
+knife[:alamo][:validation_pem]  = "${HOMEDIR}/.chef/validation.pem"
 EOF
+
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-datanode.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-jobtracker.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-master.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-namenode.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-worker.json
+knife role from file ${HOMEDIR}/hdp-cookbooks/roles/hadoop-tasktracker.json
+
+knife environment from file ${HOMEDIR}/hdp-cookbooks/environments/example.json
+
+echo "Setup complete!!! You may now proceed..."
